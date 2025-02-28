@@ -2,6 +2,17 @@ provider "aws" {
   region = "us-east-1"
 }
 
+terraform {
+  backend "s3" {
+    bucket = "devcraft-terraform-state" # Nombre de tu bucket
+    key    = "minecraft/terraform.tfstate" # Ruta dentro del bucket
+    region = "us-east-1" # Región de tu bucket
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
 resource "aws_vpc" "minecraft_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
