@@ -1,0 +1,11 @@
+version: "3"
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE" # Acepta el EULA de Minecraft
+      MEMORY: "1G" # Límite de memoria
+    volumes:
+      - ./minecraft-data:/data
