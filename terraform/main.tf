@@ -58,11 +58,17 @@ resource "aws_instance" "minecraft_server" {
   associate_public_ip_address = true  # Asignar IP pública
 
   user_data = <<-EOF
-    #!/bin/bash
-    apt-get update
-    apt-get install -y docker.io
-    docker run -d -p 25565:25565 -e EULA=TRUE -e MEMORY=1G imurilloh/minecraft-server:latest
-  EOF
+              #!/bin/bash
+              apt-get update
+              apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+              add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+              apt-get update
+              apt-get install -y docker-ce
+              usermod -aG docker ubuntu
+              docker pull imurilloh/minecraft-server:latest
+              docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+              EOF
 
   tags = {
     Name = "MinecraftServer"
