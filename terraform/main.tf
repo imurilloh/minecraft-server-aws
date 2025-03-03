@@ -108,13 +108,14 @@ resource "aws_instance" "minecraft_server" {
     sudo systemctl enable docker
     sudo systemctl start docker
 
-    while ! sudo docker info >/dev/null 2>&1; do
-      echo "Waiting for Docker to launch..."
-      sleep 1
-    done
-    sudo mkdir -p /minecraft_data
-    sudo docker run -d -p 25565:25565 -v /minecraft_data:/data --name minecraft_server imurilloh/minecraft-server:latest
-  
+    #while ! sudo docker info >/dev/null 2>&1; do
+    #  echo "Waiting for Docker to launch..."
+    #  sleep 1
+    #done
+    #sudo mkdir -p /minecraft_data
+    #sudo docker run -d -p 25565:25565 -v /minecraft_data:/data --name minecraft_server imurilloh/minecraft-server:latest
+    docker pull imurilloh/minecraft-server:latest
+    docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
   EOF
   tags = {
     Name = "MinecraftServer"
