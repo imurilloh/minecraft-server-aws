@@ -37,6 +37,13 @@ resource "aws_security_group" "minecraft_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -56,6 +63,7 @@ resource "aws_instance" "minecraft_server" {
   subnet_id     = aws_subnet.minecraft_subnet.id
   vpc_security_group_ids = [aws_security_group.minecraft_sg.id]
   associate_public_ip_address = true  # Asignar IP pública
+  key_name      = "DevCraft"
 
   user_data = <<-EOF
               #!/bin/bash
