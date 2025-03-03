@@ -63,7 +63,7 @@ resource "aws_instance" "minecraft_server" {
   subnet_id     = aws_subnet.minecraft_subnet.id
   vpc_security_group_ids = [aws_security_group.minecraft_sg.id]
   associate_public_ip_address = true  # Asignar IP pública
-  key_name      = "DevCraft"
+  key_name      = "devcraft"
 
   user_data = <<-EOF
               #!/bin/bash
