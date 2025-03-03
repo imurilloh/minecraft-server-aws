@@ -61,7 +61,7 @@ resource "aws_instance" "minecraft_server" {
     #!/bin/bash
     apt-get update
     apt-get install -y docker.io
-    docker run -d -p 25565:25565 -e EULA=TRUE -e MEMORY=1G itzg/minecraft-server:latest
+    docker run -d -p 25565:25565 -e EULA=TRUE -e MEMORY=1G imurilloh/minecraft-server:latest
   EOF
 
   tags = {
