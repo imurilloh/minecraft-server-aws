@@ -97,52 +97,39 @@ resource "aws_instance" "minecraft_server" {
   key_name      = "devcraft"
 
   user_data = <<-EOF
-  #!/bin/bash
-  sudo apt-get update && sudo apt-get upgrade -y
+    #!/bin/bash
+    sudo apt-get update && sudo apt-get upgrade -y
+    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    sudo usermod -aG docker ubuntu
+    sudo systemctl enable docker
+    sudo systemctl start docker
 
-  # Instalar paquetes necesarios para permitir que apt use un repositorio sobre HTTPS
-  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-
-  # Agregar la clave GPG oficial de Docker
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-  # Agregar el repositorio de Docker a las fuentes de APT
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-  # Actualizar el índice de paquetes de apt e instalar la última versión de Docker Engine y containerd
-  sudo apt-get update
-  sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-  # Agregar el usuario `ubuntu` al grupo `docker` para que pueda ejecutar comandos Docker sin sudo
-  sudo usermod -aG docker ubuntu
-
-  # Habilitar y arrancar el servicio de Docker
-  sudo systemctl enable docker
-  sudo systemctl start docker
-
-  # Esperar a que Docker esté completamente iniciado
-  while ! sudo docker info >/dev/null 2>&1; do
+    while ! sudo docker info >/dev/null 2>&1; do
       echo "Waiting for Docker to launch..."
       sleep 1
-  done
+    done
 
-  # Instalar docker-compose
-  sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  sudo chmod +x /usr/local/bin/docker-compose
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
 
-  # Crear un archivo docker-compose.yml
-  cat > /home/ubuntu/docker-compose.yml <<EOF
-  version: '3.8'
-  services:
-    minecraft:
-      image: imurilloh/minecraft-server:latest
-      ports:
-        - "25565:25565"
-      volumes:
-        - minecraft_data:/data
-  volumes:
-    minecraft_data:
-EOF
+    echo "version: '3.8'
+    services:
+      minecraft:
+        image: imurilloh/minecraft-server:latest
+        ports:
+          - '25565:25565'
+        volumes:
+          - minecraft_data:/data
+    volumes:
+      minecraft_data:
+    " > /home/ubuntu/docker-compose.yml
+
+    sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d
+  EOF
 
 # Ejecutar el servidor de Minecraft usando docker-compose
 cd /home/ubuntu
