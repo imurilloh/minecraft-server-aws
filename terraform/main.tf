@@ -112,24 +112,9 @@ resource "aws_instance" "minecraft_server" {
       echo "Waiting for Docker to launch..."
       sleep 1
     done
-
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    cat > /home/ubuntu/docker-compose.yml <<EOD
-    version: '3.8'
-    services:
-      minecraft:
-        image: imurilloh/minecraft-server:latest
-        ports:
-          - '25565:25565'
-        volumes:
-          - minecraft_data:/data
-    volumes:
-      minecraft_data:
-    EOD
-
-    sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d
+    sudo mkdir -p /minecraft_data
+    sudo docker run -d -p 25565:25565 -v /minecraft_data:/data --name minecraft_server imurilloh/minecraft-server:latest
+  
   EOF
   tags = {
     Name = "MinecraftServer"
