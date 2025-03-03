@@ -90,7 +90,7 @@ resource "aws_security_group" "minecraft_sg" {
 
 resource "aws_instance" "minecraft_server" {
   ami           = "ami-04b4f1a9cf54c11d0"
-  instance_type = "t2.micro"
+  instance_type = "t3.medium"
   subnet_id     = aws_subnet.minecraft_subnet.id
   vpc_security_group_ids = [aws_security_group.minecraft_sg.id]
   associate_public_ip_address = true
