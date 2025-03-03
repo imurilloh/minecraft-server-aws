@@ -99,26 +99,11 @@ resource "aws_instance" "minecraft_server" {
   user_data = <<-EOF
   #!/bin/bash
 apt-get update
-apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-apt-get update
-apt-get install -y docker-ce
-
-# Comprobando la instalación de Docker
-if [ $(which docker) ]; then
-    echo "Docker ha sido instalado correctamente."
-else
-    echo "Error: Docker no se pudo instalar."
-    exit 1
-fi
-
+apt-get install -y docker.io
+systemctl start docker
+systemctl enable docker
 usermod -aG docker ubuntu
-# Espera a que el usuario 'ubuntu' se configure correctamente antes de usarlo
-while ! id ubuntu &>/dev/null; do
-    echo "Esperando la configuración del usuario 'ubuntu'..."
-    sleep 1
-done
+
 
 # Pull the Minecraft server Docker image
 docker pull imurilloh/minecraft-server:latest
@@ -126,13 +111,6 @@ docker pull imurilloh/minecraft-server:latest
 # Run the Minecraft server Docker container
 docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
 
-# Opcional: Verificar si el contenedor está corriendo
-if [ $(docker ps -q -f name=minecraft_server) ]; then
-    echo "El servidor de Minecraft está corriendo."
-else
-    echo "Error: El servidor de Minecraft no está corriendo."
-    exit 1
-fi
 EOF
 
   tags = {
