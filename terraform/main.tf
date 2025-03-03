@@ -97,17 +97,34 @@ resource "aws_instance" "minecraft_server" {
   key_name      = "devcraft"
 
   user_data = <<-EOF
-                #!/bin/bash
-                apt-get update
-                apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-                add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-                apt-get update
-                apt-get install -y docker-ce
-                usermod -aG docker ubuntu
-                docker pull imurilloh/minecraft-server:latest
-                docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
-              EOF
+  #!/bin/bash
+  # Actualizar los paquetes e instalar las dependencias necesarias
+  apt-get update
+  apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  
+  # Agregar la clave GPG oficial de Docker
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  
+  # Agregar el repositorio de Docker a las fuentes de APT
+  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  
+  # Instalar Docker CE
+  apt-get update
+  apt-get install -y docker-ce
+  
+  # Agregar el usuario 'ubuntu' al grupo 'docker' para permitir la ejecución de Docker sin sudo
+  usermod -aG docker ubuntu
+  
+  # Tirar imagen de Docker del servidor de Minecraft
+  docker pull imurilloh/minecraft-server:latest
+  
+  # Iniciar el contenedor de Docker con el servidor de Minecraft
+  docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+
+  # Añadir comandos para depurar si Docker no se inicia correctamente
+  systemctl status docker --no-pager > /var/log/docker_status.log
+  journalctl -u docker.service --no-pager > /var/log/docker_journal.log
+EOF
 
   tags = {
     Name = "MinecraftServer"
