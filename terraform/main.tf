@@ -117,26 +117,20 @@ resource "aws_instance" "minecraft_server" {
     sudo chmod +x /usr/local/bin/docker-compose
 
     cat > /home/ubuntu/docker-compose.yml <<EOD
-version: '3.8'
-services:
-  minecraft:
-    image: imurilloh/minecraft-server:latest
-    ports:
-      - '25565:25565'
+    version: '3.8'
+    services:
+      minecraft:
+        image: imurilloh/minecraft-server:latest
+        ports:
+          - '25565:25565'
+        volumes:
+          - minecraft_data:/data
     volumes:
-      - minecraft_data:/data
-volumes:
-  minecraft_data:
-EOD
+      minecraft_data:
+    EOD
 
     sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d
   EOF
-
-# Ejecutar el servidor de Minecraft usando docker-compose
-cd /home/ubuntu
-sudo docker-compose up -d
-EOF
-
   tags = {
     Name = "MinecraftServer"
     Project = "DevCraft"
