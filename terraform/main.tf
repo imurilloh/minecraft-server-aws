@@ -116,17 +116,18 @@ resource "aws_instance" "minecraft_server" {
     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
 
-    echo "version: '3.8'
-    services:
-      minecraft:
-        image: imurilloh/minecraft-server:latest
-        ports:
-          - '25565:25565'
-        volumes:
-          - minecraft_data:/data
+    cat > /home/ubuntu/docker-compose.yml <<EOD
+version: '3.8'
+services:
+  minecraft:
+    image: imurilloh/minecraft-server:latest
+    ports:
+      - '25565:25565'
     volumes:
-      minecraft_data:
-    " > /home/ubuntu/docker-compose.yml
+      - minecraft_data:/data
+volumes:
+  minecraft_data:
+EOD
 
     sudo docker-compose -f /home/ubuntu/docker-compose.yml up -d
   EOF
