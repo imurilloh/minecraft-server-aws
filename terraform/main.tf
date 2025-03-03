@@ -98,18 +98,32 @@ resource "aws_instance" "minecraft_server" {
 
   user_data = <<-EOF
   #!/bin/bash
-apt-get update
-apt-get install -y docker.io
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
+  sudo apt-get update && sudo apt-get upgrade -y
 
+  # Instalar paquetes necesarios para permitir que apt use un repositorio sobre HTTPS
+  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  
+  # Agregar la clave GPG oficial de Docker
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  
+  # Agregar el repositorio de Docker a las fuentes de APT
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  
+  # Actualizar el índice de paquetes de apt e instalar la última versión de Docker Engine y containerd
+  sudo apt-get update
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+  
+  # Agregar el usuario `ubuntu` al grupo `docker` para que pueda ejecutar comandos Docker sin sudo
+  sudo usermod -aG docker ubuntu
+  
+  # Habilitar y arrancar el servicio de Docker
+  sudo systemctl enable docker
+  sudo systemctl start docker
+  # Pull the Minecraft server Docker image
+  docker pull imurilloh/minecraft-server:latest
 
-# Pull the Minecraft server Docker image
-docker pull imurilloh/minecraft-server:latest
-
-# Run the Minecraft server Docker container
-docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+  # Run the Minecraft server Docker container
+  docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
 
 EOF
 
