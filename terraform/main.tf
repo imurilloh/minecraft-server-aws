@@ -98,32 +98,41 @@ resource "aws_instance" "minecraft_server" {
 
   user_data = <<-EOF
   #!/bin/bash
-  # Actualizar los paquetes e instalar las dependencias necesarias
-  apt-get update
-  apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-  
-  # Agregar la clave GPG oficial de Docker
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-  
-  # Agregar el repositorio de Docker a las fuentes de APT
-  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  
-  # Instalar Docker CE
-  apt-get update
-  apt-get install -y docker-ce
-  
-  # Agregar el usuario 'ubuntu' al grupo 'docker' para permitir la ejecución de Docker sin sudo
-  usermod -aG docker ubuntu
-  
-  # Tirar imagen de Docker del servidor de Minecraft
-  docker pull imurilloh/minecraft-server:latest
-  
-  # Iniciar el contenedor de Docker con el servidor de Minecraft
-  docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce
 
-  # Añadir comandos para depurar si Docker no se inicia correctamente
-  systemctl status docker --no-pager > /var/log/docker_status.log
-  journalctl -u docker.service --no-pager > /var/log/docker_journal.log
+# Comprobando la instalación de Docker
+if [ $(which docker) ]; then
+    echo "Docker ha sido instalado correctamente."
+else
+    echo "Error: Docker no se pudo instalar."
+    exit 1
+fi
+
+usermod -aG docker ubuntu
+# Espera a que el usuario 'ubuntu' se configure correctamente antes de usarlo
+while ! id ubuntu &>/dev/null; do
+    echo "Esperando la configuración del usuario 'ubuntu'..."
+    sleep 1
+done
+
+# Pull the Minecraft server Docker image
+docker pull imurilloh/minecraft-server:latest
+
+# Run the Minecraft server Docker container
+docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+
+# Opcional: Verificar si el contenedor está corriendo
+if [ $(docker ps -q -f name=minecraft_server) ]; then
+    echo "El servidor de Minecraft está corriendo."
+else
+    echo "Error: El servidor de Minecraft no está corriendo."
+    exit 1
+fi
 EOF
 
   tags = {
