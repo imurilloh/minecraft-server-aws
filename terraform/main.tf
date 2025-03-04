@@ -106,8 +106,8 @@ resource "aws_instance" "minecraft_server" {
     #done
     #sudo mkdir -p /minecraft_data
     #sudo docker run -d -p 25565:25565 -v /minecraft_data:/data --name minecraft_server imurilloh/minecraft-server:latest
-    sudo docker pull imurilloh/minecraft-server:latest
-    sudo docker run -d -p 25565:25565 --name minecraft_server imurilloh/minecraft-server:latest
+    sudo docker pull imurilloh/devcraft-minecraft-server-light:latest
+    sudo docker run -d -p 25565:25565 --name minecraft_server imurilloh/devcraft-minecraft-server-light:latest
   EOF
   tags = {
     Name = "MinecraftServer"
